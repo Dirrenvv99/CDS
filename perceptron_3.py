@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 
 
 def normal_C_P_N(P,N):   
-    return np.sum(np.array([math.comb((P-1), i) for i in range(N)])) * 2
+    result = 0
+    for i in range(N):
+        result += math.comb((P-1), i)
+    return result * 2
 
 def bound_high_P(P,N):
     return (np.exp(1)*P/N)**(N)
@@ -20,14 +23,11 @@ real_values = np.array([normal_C_P_N(P,N) for P in range(1,201)])
 
 difference = P_total - real_values
 results = [(i + 1,val) for i, val in enumerate(zip(P_total, real_values))]
-print(np.sum(np.array([math.comb((32-1), i) for i in range(N)])))
+print("Below the difference between the bound and the real value is printed, where the bound is calculated differently for P smaller than N and bigger")
 
-#plt.plot(np.array([P for P in range(1, 201)]), P_total, label = "Bound values")
-#plt.plot(np.array([P for P in range(1,201)]), real_values, label = "Numerical values")
-#plt.legend()
-#plt.xlim([1,50])
-#plt.ylim([1,1000000])
-#plt.show()
+print(difference)
+
+#As we can see within the print. The bound introduced for the P > N is very conservative!
 
 
 
