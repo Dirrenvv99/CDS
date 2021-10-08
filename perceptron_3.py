@@ -4,15 +4,18 @@ import matplotlib.pyplot as plt
 
 
 def normal_C_P_N(P,N):   
+    '''The normal definition of C(P,N)'''
     result = 0
     for i in range(N):
         result += math.comb((P-1), i)
     return result * 2
 
 def bound_high_P(P,N):
+    '''The upper bound for P > N'''
     return (np.exp(1)*P/N)**(N)
 
 def bound_low_P(P,N):
+    '''The upper bound for P <= n'''
     return 2**(P)
 
 N = 50
