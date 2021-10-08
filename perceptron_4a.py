@@ -4,7 +4,10 @@ from scipy.optimize import curve_fit
 import math
 
 def epsilon(N,P, delta):
-    return np.sqrt((8 * ( N *  np.log((2*P)/N) + N - np.log(delta/4)))/P)
+    if P <= N:
+        return np.sqrt(8 * ( (2*P + 2)* np.log(2) - np.log(delta))/P)
+    else:
+        return np.sqrt((8 * ( N *  np.log((2*P)/N) + N - np.log(delta/4)))/P)
 
 
 def fit_func(P, a):
@@ -13,8 +16,8 @@ def fit_func(P, a):
 
 num_patterns = []
 for N in range(10,51,10):
-    eps_data = [epsilon(N,P,0.01) for P in range(4 + int(N/10),2*N + N)]
-    P_data = [P for P in range(4 + int(N/10),2*N +N)]
+    eps_data = [epsilon(N,P,0.01) for P in range(1,2*N + N)]
+    P_data = [P for P in range(1,2*N +N)]
     print(P_data)
     print(eps_data)
 
