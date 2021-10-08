@@ -14,18 +14,19 @@ def fit_func(P, a):
     return P**(a)
 
 
-num_patterns = []
-for N in range(10,51,10):
-    eps_data = [epsilon(N,P,0.01) for P in range(1,2*N + N)]
-    P_data = [P for P in range(1,2*N +N)]
-    print(P_data)
-    print(eps_data)
 
-    popt, pcov = curve_fit(fit_func, P_data, eps_data)
-     
-    num_patterns.append(math.ceil((0.1)**(1/popt)))
+N = 10
+eps_data = [epsilon(N,P,0.01) for P in range(1,450000)]
+P_data = [P for P in range(1,450000)]
 
-print(num_patterns)
+popt, pcov = curve_fit(fit_func, P_data, eps_data)
+
+patterns_10 = math.ceil((0.1)**(1/popt[0]))
+print("We find for N = ", N, " that we need: ", patterns_10 , "patterns, to have a error of: ", epsilon(N,patterns_10, 0.01))
+
+error_01 = [i * patterns_10 for i in range(1,6)]
+print("The number of patterns needed for an error of 0.1 is: ")
+print([((idx + 1) * 10, val) for idx, val in enumerate(error_01)])
 
 
 
