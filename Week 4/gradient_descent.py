@@ -94,9 +94,15 @@ def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter)
     train_error, test_error = [], []
 
     for _ in tqdm(range(iter)):
-        w = w - learning_rate * (
-            np.linalg.inv(hessian(w, train_x, train_t)) * 
+        # print(w.shape)
+        # print(hessian(w, train_x, train_t, lam).shape)
+        # print(np.linalg.inv(hessian(w, train_x, train_t, lam)).shape)
+        # print(error_gradient(w, train_x, train_t, lam).shape)
+
+        w = w - learning_rate * np.dot(
+            np.linalg.inv(hessian(w, train_x, train_t, lam)),
             error_gradient(w, train_x, train_t, lam))
+
 
         train_error.append(error(w, train_x, train_t))
         test_error.append(error(w, test_x, test_t))
@@ -133,11 +139,11 @@ def main():
     w = np.random.choice(20000, train_x.shape[1])/10000 - 1
 
     # Gradient descent ------------------------------------
-    learning_rate = 0.9
-    w, train_error, test_error = gradient_descent(
-        w, train_x, train_t, test_x, test_t, learning_rate, 10000)
-    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    plot_error("Gradient Descent", train_error, test_error)
+    # learning_rate = 0.9
+    # w, train_error, test_error = gradient_descent(
+    #     w, train_x, train_t, test_x, test_t, learning_rate, 10000)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # plot_error("Gradient Descent", train_error, test_error)
 
     # Logistic regression with Momentum -------------------
     # learning_rate = 0.9
@@ -156,12 +162,12 @@ def main():
     # plot_error("Gradient Descent", train_error, test_error)
 
     # Logistic regression with Newton method --------------
-    # learning_rate = 0.9
-    # lam = 0.1
-    # w, train_error, test_error = newton_method(
-    #     w, train_x, train_t, test_x, test_t, learning_rate, lam, 10)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Gradient Descent", train_error, test_error)
+    learning_rate = 0.9
+    lam = 0.1
+    w, train_error, test_error = newton_method(
+        w, train_x, train_t, test_x, test_t, learning_rate, lam, 10)
+    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    plot_error("Gradient Descent", train_error, test_error)
 
 
 if __name__ == "__main__":
