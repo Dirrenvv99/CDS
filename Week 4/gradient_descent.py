@@ -93,7 +93,7 @@ def weight_decay(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter):
 def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter):
     train_error, test_error = [], []
 
-    for _ in tqdm(range(iter)):
+    for _ in tqdm(range(iter)): # TODO FIX
         # print(w.shape)
         # print(hessian(w, train_x, train_t, lam).shape)
         # print(np.linalg.inv(hessian(w, train_x, train_t, lam)).shape)
@@ -110,8 +110,41 @@ def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter)
     return w, train_error, test_error
 
 
+def line_search(w, train_x, train_t, test_x, test_t, iter):
+    """
+    Select lambda based on if it gets better
+    """
+    train_error, test_error = [], []
+    lam = 0.5
+
+    for _ in tqdm(range(iter)):
+        grad = error_gradient(w, train_x, train_t, lam)
+        w1 = w - 2*lam * grad
+        w2 = w - lam * grad
+        w3 = w - .5*lam * grad
+
+        e1 = error(w1, train_x, train_t)
+        e2 = error(w2, train_x, train_t)
+        e3 = error(w3, train_x, train_t)
+
+        if e1 < e2 and e1 < e3:
+            lam = 2*lam
+            w = w1
+            train_error.append(e1)
+        elif e3 < e2:
+            lam = .5*lam
+            w = w3
+            train_error.append(e3)
+        else:
+            w = w2
+            train_error.append(e2)
+
+        test_error.append(error(w, test_x, test_t))
+
+    return w, train_error, test_error
+
+
 def plot_error(title, train_error, test_error):
-    # x = np.linspace(1, len(train_error))
     plt.plot(train_error, label='train error')
     plt.plot(test_error, label='test error')
     plt.title(title)
@@ -161,13 +194,19 @@ def main():
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
     # plot_error("Gradient Descent", train_error, test_error)
 
-    # Logistic regression with Newton method --------------
-    learning_rate = 0.9
-    lam = 0.1
-    w, train_error, test_error = newton_method(
-        w, train_x, train_t, test_x, test_t, learning_rate, lam, 10)
-    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    plot_error("Gradient Descent", train_error, test_error)
+    # Logistic regression with Newton method -------------- # TODO DOES NOT WORK
+    # learning_rate = 0.9
+    # lam = 0.1
+    # w, train_error, test_error = newton_method(
+    #     w, train_x, train_t, test_x, test_t, learning_rate, lam, 10)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # plot_error("Gradient Descent", train_error, test_error)
+
+    # Logistic regression with line search ----------------
+    # w, train_error, test_error = line_search(
+    #     w, train_x, train_t, test_x, test_t, 224)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # plot_error("Gradient Descent", train_error, test_error)
 
 
 if __name__ == "__main__":
