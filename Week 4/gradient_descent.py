@@ -182,6 +182,18 @@ def conjugate(w, train_x, train_t, test_x, test_t, iter):
     return w, train_error, test_error
 
 
+def stochastic_gradient_descent(w, train_x, train_t, test_x, test_t, learning_rate, iter):
+    pass
+    # train_error, test_error = [], [] #TODO deze helemaal
+
+    # for _ in tqdm(range(iter)):
+    #     w = w - learning_rate * error_gradient(w, train_x, train_t)
+    #     train_error.append(error(w, train_x, train_t))
+    #     test_error.append(error(w, test_x, test_t))
+
+    # return w, train_error, test_error
+
+
 def plot_error(title, train_error, test_error):
     plt.plot(train_error, label='train error')
     plt.plot(test_error, label='test error')
@@ -240,17 +252,24 @@ def main():
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
     # plot_error("Gradient Descent", train_error, test_error)
 
-    # Logistic regression with line search ----------------
+    # Logistic regression with line search ---------------- # TODO andere line search voor deze en de volgende?
     # w, train_error, test_error = line_search(
     #     w, train_x, train_t, test_x, test_t, 224)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
     # plot_error("Gradient Descent", train_error, test_error)
 
     # Logistic regression with conjugation ----------------
-    w, train_error, test_error = conjugate(
-        w, train_x, train_t, test_x, test_t, 104)
-    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    plot_error("Gradient Descent", train_error, test_error)
+    # w, train_error, test_error = conjugate(
+    #     w, train_x, train_t, test_x, test_t, 104)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # plot_error("Gradient Descent", train_error, test_error)
+
+    # Stochastic gradient descent -------------------------
+    # learning_rate = 0.9
+    # w, train_error, test_error = stochastic_gradient_descent(
+    #     w, train_x, train_t, test_x, test_t, learning_rate, 5000)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # plot_error("Gradient Descent", train_error, test_error)
 
 
 
