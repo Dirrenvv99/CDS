@@ -112,7 +112,7 @@ def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter)
 
 def line_search(w, train_x, train_t, test_x, test_t, iter):
     """
-    Select lambda based on if it gets better
+    Select lambda based on whcih gets the lowest error
     """
     train_error, test_error = [], []
     lam = 0.5
@@ -139,6 +139,44 @@ def line_search(w, train_x, train_t, test_x, test_t, iter):
             w = w2
             train_error.append(e2)
 
+        test_error.append(error(w, test_x, test_t))
+
+    return w, train_error, test_error
+
+
+def conjugate(w, train_x, train_t, test_x, test_t, iter):
+    train_error, test_error = [], []
+    lam = 0.5
+    d = 0
+    prev_eg = error_gradient(w, train_x, train_t)
+
+    for _ in tqdm(range(iter)):
+        eg = error_gradient(w, train_x, train_t)
+        beta = np.dot(eg-prev_eg, eg)/np.linalg.norm(prev_eg)
+        d = -eg + beta*d
+        prev_eg = eg
+        print(lam)
+
+        w1 = w + 2*lam * d
+        w2 = w + lam * d
+        w3 = w + .5*lam * d
+
+        e1 = error(w1, train_x, train_t)
+        e2 = error(w2, train_x, train_t)
+        e3 = error(w3, train_x, train_t)
+
+        if e1 < e2 and e1 < e3:
+            lam = 2*lam
+            w = w1
+            train_error.append(e1)
+        elif e3 < e2:
+            lam = .5*lam
+            w = w3
+            train_error.append(e3)
+        else:
+            w = w2
+            train_error.append(e2)
+        
         test_error.append(error(w, test_x, test_t))
 
     return w, train_error, test_error
@@ -207,6 +245,13 @@ def main():
     #     w, train_x, train_t, test_x, test_t, 224)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
     # plot_error("Gradient Descent", train_error, test_error)
+
+    # Logistic regression with conjugation ----------------
+    w, train_error, test_error = conjugate(
+        w, train_x, train_t, test_x, test_t, 104)
+    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    plot_error("Gradient Descent", train_error, test_error)
+
 
 
 if __name__ == "__main__":
