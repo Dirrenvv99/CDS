@@ -1,19 +1,19 @@
 # Adapted from the code on https://www.tensorflow.org/tutorials/images/cnn 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
+# from __future__ import absolute_import, division, print_function, unicode_literals
 import tensorflow as tf
-from tensorflow.keras import datasets, layers, models, regularizers
 import matplotlib.pyplot as plt
+
+from tensorflow.keras import datasets, layers, models
+
 
 # Load data
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
-
+num_classes = 10
 
 # Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
-num_classes = 10
-
+# Exercise 1
 model_0 = models.Sequential([
     layers.Flatten(),
     layers.Dense(num_classes, activation='softmax')
@@ -21,7 +21,7 @@ model_0 = models.Sequential([
 
 model_1 = models.Sequential([
     layers.Flatten(),
-    layers.Dense(100, activation='relu'),
+    layers.Dense(200, activation='relu'),
     layers.Dense(num_classes, activation='softmax')
     ])
 
@@ -32,6 +32,7 @@ model_2 = models.Sequential([
     layers.Dense(num_classes, activation='softmax')
     ])
 
+# Exercise 2
 model_1_large = models.Sequential([
     layers.Flatten(),
     layers.Dense(10000, activation='relu'),
@@ -39,6 +40,7 @@ model_1_large = models.Sequential([
     ])
 
 
+# Run a certain model
 def run(model, epochs=20, lr=1e-5):
     model.compile(optimizer=tf.keras.optimizer.Adam(learning_rate=lr),
                 loss='sparse_categorical_crossentropy',
@@ -52,6 +54,7 @@ def run(model, epochs=20, lr=1e-5):
     plot(history, test_loss, test_acc)
 
 
+# Plot the learning curves
 def plot(history, test_loss, test_acc):
     plt.plot(history.history['acc'], label='accuracy')
     plt.plot(history.history['val_acc'], label = 'val_accuracy')
@@ -59,14 +62,7 @@ def plot(history, test_loss, test_acc):
     plt.plot(test_acc, label = 'test_accuracy')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
-    plt.ylim([0.5, 1])
     plt.legend(loc='lower right')
-
-
-if __name__ == "__main__":
-    run(model=model_0)
-    run(model=model_1)
-    run(model=model_2)
 
 
 # ----------------------------

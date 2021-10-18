@@ -1,19 +1,16 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import tensorflow as tf
-
-from tensorflow.keras import datasets, layers, models
 import matplotlib.pyplot as plt
 
+from tensorflow.keras import datasets, layers, models
+
+
+# Load data
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
 
 # Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
-# Building the model
-activations = ['relu', 'tanh']
-optimizers = ['adam', 'adagrad', 'sgd']
-
+# MLP, run with perceptron.py
 model_ex_4 = models.Sequential([
     layers.Flatten(),
     layers.Dense(40, activation='relu'),
@@ -21,6 +18,7 @@ model_ex_4 = models.Sequential([
     layers.Dense(10, activation='softmax')
     ])
 
+# CNN
 model = models.Sequential()
 model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
 model.add(layers.MaxPooling2D((2, 2)))
@@ -44,11 +42,16 @@ plt.plot(history.history['acc'], label='accuracy')
 plt.plot(history.history['val_acc'], label = 'val_accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
-plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
 
+
+# -------------------------------
 # 3.
 '''
+activations = ['relu', 'tanh']
+optimizers = ['adam', 'adagrad', 'sgd']
+
+
 Params = 122,570
 Difference with ReLU and tanh:
 ReLU: Test: loss=0.8949, accuracy=0.7075
@@ -65,6 +68,7 @@ Plots can be found in:
 - ex_3_sgd.png
 '''
 
+# -------------------------------
 # 4.
 '''
 Parameters both networks:
