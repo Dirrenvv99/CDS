@@ -90,7 +90,7 @@ def weight_decay(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter):
     return w, train_error, test_error
 
 
-def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter):
+def newton_method(w, train_x, train_t, test_x, test_t, lam, iter):
     train_error, test_error = [], []
 
     for _ in tqdm(range(iter)): # TODO FIX
@@ -101,7 +101,7 @@ def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter)
 
         # print(hessian(w, train_x, train_t, lam))
 
-        w = w - learning_rate * np.dot(
+        w = w -  np.dot(
             np.linalg.inv(hessian(w, train_x, train_t, lam)),
             error_gradient(w, train_x, train_t, lam))
 
@@ -233,12 +233,12 @@ def main():
     # plot_error("Gradient Descent", train_error, test_error)
 
     # Logistic regression with Momentum -------------------
-    learning_rate = 0.9
-    momentum = 0.5
-    w, train_error, test_error = gradient_descent_momentum(
-        w, train_x, train_t, test_x, test_t, learning_rate, momentum, 10000)
-    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    plot_error("Momentum", train_error, test_error)
+    # learning_rate = 0.9
+    # momentum = 0.5
+    # w, train_error, test_error = gradient_descent_momentum(
+    #     w, train_x, train_t, test_x, test_t, learning_rate, momentum, 10000)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # plot_error("Momentum", train_error, test_error)
 
     # Logistic regression with weight decay ---------------
     # learning_rate = 0.9
@@ -249,12 +249,11 @@ def main():
     # plot_error("Weight decay", train_error, test_error)
 
     # Logistic regression with Newton method -------------- # TODO DOES NOT WORK
-    # learning_rate = 0.9
-    # lam = 0.1
-    # w, train_error, test_error = newton_method(
-    #     w, train_x, train_t, test_x, test_t, learning_rate, lam, 10)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Netwon Method", train_error, test_error)
+    lam = 0.1
+    w, train_error, test_error = newton_method(
+        w, train_x, train_t, test_x, test_t, lam, 10)
+    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    plot_error("Netwon Method", train_error, test_error)
 
     # Logistic regression with line search ---------------- # TODO Andere line search
     # w, train_error, test_error = line_search(
