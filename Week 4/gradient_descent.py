@@ -101,7 +101,7 @@ def newton_method(w, train_x, train_t, test_x, test_t, lam, iter):
 
         # print(hessian(w, train_x, train_t, lam))
 
-        w = w -  np.dot(
+        w = w - np.dot(
             np.linalg.inv(hessian(w, train_x, train_t, lam)),
             error_gradient(w, train_x, train_t, lam))
 
@@ -113,29 +113,31 @@ def newton_method(w, train_x, train_t, test_x, test_t, lam, iter):
     return w, train_error, test_error
 
 
-def line_search(w, train_x, train_t, test_x, test_t, iter):
+def line_search(w, train_x, train_t, test_x, test_t, initial_gam, iter):
     """
-    Select lambda based on whcih gets the lowest error
+    Select lambda using line search to get the lowest error
     """
     train_error, test_error = [], []
-    lam = 0.5
+    gam = initial_gam
 
     for _ in tqdm(range(iter)):
-        grad = error_gradient(w, train_x, train_t, lam)
-        w1 = w - 2*lam * grad
-        w2 = w - lam * grad
-        w3 = w - .5*lam * grad
+        grad = error_gradient(w, train_x, train_t, gam)
+
+        # Calculate if a higher or lower weight decreases the error
+        w1 = w - 2*gam * grad
+        w2 = w - gam * grad
+        w3 = w - .5*gam * grad
 
         e1 = error(w1, train_x, train_t)
         e2 = error(w2, train_x, train_t)
         e3 = error(w3, train_x, train_t)
 
         if e1 < e2 and e1 < e3:
-            lam = 2*lam
+            gam = 2*gam
             w = w1
             train_error.append(e1)
         elif e3 < e2:
-            lam = .5*lam
+            gam = .5*gam
             w = w3
             train_error.append(e3)
         else:
@@ -147,9 +149,9 @@ def line_search(w, train_x, train_t, test_x, test_t, iter):
     return w, train_error, test_error
 
 
-def conjugate(w, train_x, train_t, test_x, test_t, iter):
+def conjugate(w, train_x, train_t, test_x, test_t, initial_gam, iter):
     train_error, test_error = [], []
-    lam = 0.5
+    gam = initial_gam
     d = 0
     prev_eg = error_gradient(w, train_x, train_t)
 
@@ -159,20 +161,20 @@ def conjugate(w, train_x, train_t, test_x, test_t, iter):
         d = -eg + beta*d
         prev_eg = eg
 
-        w1 = w + 2*lam * d
-        w2 = w + lam * d
-        w3 = w + .5*lam * d
+        w1 = w + 2*gam * d
+        w2 = w + gam * d
+        w3 = w + .5*gam * d
 
         e1 = error(w1, train_x, train_t)
         e2 = error(w2, train_x, train_t)
         e3 = error(w3, train_x, train_t)
 
         if e1 < e2 and e1 < e3:
-            lam = 2*lam
+            gam = 2*gam
             w = w1
             train_error.append(e1)
         elif e3 < e2:
-            lam = .5*lam
+            gam = .5*gam
             w = w3
             train_error.append(e3)
         else:
@@ -249,23 +251,25 @@ def main():
     # plot_error("Weight decay", train_error, test_error)
 
     # Logistic regression with Newton method -------------- # TODO DOES NOT WORK
-    lam = 0.1
-    w, train_error, test_error = newton_method(
-        w, train_x, train_t, test_x, test_t, lam, 10)
-    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    plot_error("Netwon Method", train_error, test_error)
+    # lam = 0.1
+    # w, train_error, test_error = newton_method(
+    #     w, train_x, train_t, test_x, test_t, lam, 10)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # plot_error("Netwon Method", train_error, test_error)
 
-    # Logistic regression with line search ---------------- # TODO Andere line search
+    # Logistic regression with line search ----------------
+    # initial_gam = 2
     # w, train_error, test_error = line_search(
-    #     w, train_x, train_t, test_x, test_t, 224)
+    #     w, train_x, train_t, test_x, test_t, initial_gam, 224)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
     # plot_error("Line Search", train_error, test_error)
 
     # Logistic regression with conjugation ----------------
+    # initial_gam = 2
     # w, train_error, test_error = conjugate(
-    #     w, train_x, train_t, test_x, test_t, 104)
+    #     w, train_x, train_t, test_x, test_t, initial_gam, 104)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Conjugation", train_error, test_error)
+    # plot_error("Conjugate Gradient Descent", train_error, test_error)
 
     # Stochastic gradient descent -------------------------
     # for lr in [0.1,0.6,0.9]:

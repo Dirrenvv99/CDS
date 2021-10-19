@@ -1,8 +1,36 @@
 Model                           Plot_name       Train_error                 Test_error
-Momentum                        Momentum.png    0.016046560647875657        0.05499115435549369
+
+Gradient Descent                GD.png          0.019441011405075193        0.05129216730640725
     learning_rate = 0.9
-    momentum = 0.5
+
 
 Momentum                        Momentum.png    0.016046560647875657        0.05499115435549369
     learning_rate = 0.9
     momentum = 0.5
+
+
+Weight Decay                    WD.png          0.022961710269442413        0.048834957484237065
+    learning_rate = 0.9
+    lambda = 0.1
+
+NEWTON
+
+Line Search                     LS.png          0.03219390555751208         0.04843938123208045
+    initial gamma = 2
+
+
+Conjugate Gradient Descent      CGD.png         0.03743931624343317         0.05573704358633402
+    initial gamma = 2
+
+
+Stochastic Gradient Descent     SGD_1.png       0.04021251079034295         0.0613781957730808
+    learning_rate = 0.1
+    mini_batch = 0.01
+
+Stochastic Gradient Descent     SGD_2.png       0.025681374357061262        0.05181644199268901
+    learning_rate = 0.6
+    mini_batch = 0.01
+
+Stochastic Gradient Descent     SGD_3.png       0.019441011405075193        0.05129216730640725
+    learning_rate = 0.9
+    mini_batch = 0.01
