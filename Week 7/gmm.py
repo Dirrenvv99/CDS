@@ -1,30 +1,7 @@
-from pathlib import Path
 import numpy as np
-import matplotlib.pyplot as plt
-from mlxtend.data import loadlocal_mnist
-from numpy.core.shape_base import stack
-from numpy.lib.shape_base import dstack
-from tqdm import tqdm
-
-
-def load_data(images_path, labels_path):
-    # Load data
-    parent_dir = Path.cwd().parent
-    week_4 = f'{parent_dir}/Week 4/'
-
-    x, y = loadlocal_mnist(
-        images_path=f'{week_4}/{images_path}', 
-        labels_path=f'{week_4}/{labels_path}'
-    )
-
-    x = x / 255
-
-    return x, y
 
 
 class GMM:
-    # TODO: https://towardsdatascience.com/gaussian-mixture-models-implemented-from-scratch-1857e40ea566
-    # Extra: https://www.analyticsvidhya.com/blog/2019/10/gaussian-mixture-models-clustering/
     def __init__(self, clusters):
         self.K = clusters
 
@@ -87,21 +64,3 @@ class GMM:
                 break
 
         return mu, sigma, gamma, llh
-
-
-def main():
-    train_x, train_t = load_data(
-    'data/train-images-idx3-ubyte', 'data/train-labels-idx1-ubyte'
-    )
-
-    test_x, test_t = load_data(
-    'data/t10k-images-idx3-ubyte', 'data/t10k-labels-idx1-ubyte'
-    )
-
-    gmm = GMM(10)
-    X = np.array(train_x)
-    gmm.fit(X)
-
-
-if __name__=="__main__":
-    main()

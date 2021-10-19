@@ -1,6 +1,7 @@
 import numpy as np
-from clustering import GMM
+from gmm import GMM
 import matplotlib.pyplot as plt
+
 
 def load_data():
     """
@@ -38,6 +39,7 @@ def plot(X, gamma, K, colors):
 
 
 def main():
+    # Use GMM from gmm.py
     data = load_data()
     gmm = GMM(2)
     mu, sigma, gamma, llh = gmm.fit(data, 30, 0.001)
