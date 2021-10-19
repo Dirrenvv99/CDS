@@ -50,7 +50,7 @@ def hessian(w, x, t, lam=0): # TODO Niet zeker nu wel d,d shape
     n, d = x.shape
     y = sigma(np.dot(w, x.T))[:,np.newaxis]
 
-    h = (np.dot(np.dot(x.T, y), np.dot(x.T, (1-y)).T) + lam*np.identity(d))/n
+    h = np.dot(np.dot(x.T, y), np.dot((1-y).T,x))/n + lam*np.identity(d)/d
 
     return h
 
@@ -79,7 +79,7 @@ def gradient_descent_momentum(w, train_x, train_t, test_x, test_t, learning_rate
     return w, train_error, test_error
 
 
-def weight_decay(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter):
+def weight_decay(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter): # TODO add momentum
     train_error, test_error = [], []
 
     for _ in tqdm(range(iter)):
@@ -99,6 +99,8 @@ def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter)
         # print(np.linalg.inv(hessian(w, train_x, train_t, lam)).shape)
         # print(error_gradient(w, train_x, train_t, lam).shape)
 
+        # print(hessian(w, train_x, train_t, lam))
+
         w = w - learning_rate * np.dot(
             np.linalg.inv(hessian(w, train_x, train_t, lam)),
             error_gradient(w, train_x, train_t, lam))
@@ -106,6 +108,7 @@ def newton_method(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter)
 
         train_error.append(error(w, train_x, train_t))
         test_error.append(error(w, test_x, test_t))
+        # print(train_error, test_error)
 
     return w, train_error, test_error
 
@@ -155,7 +158,6 @@ def conjugate(w, train_x, train_t, test_x, test_t, iter):
         beta = np.dot(eg-prev_eg, eg)/np.linalg.norm(prev_eg)
         d = -eg + beta*d
         prev_eg = eg
-        print(lam)
 
         w1 = w + 2*lam * d
         w2 = w + lam * d
@@ -182,16 +184,18 @@ def conjugate(w, train_x, train_t, test_x, test_t, iter):
     return w, train_error, test_error
 
 
-def stochastic_gradient_descent(w, train_x, train_t, test_x, test_t, learning_rate, iter):
-    pass
-    # train_error, test_error = [], [] #TODO deze helemaal
+def stochastic_gradient_descent(w, train_x, train_t, test_x, test_t, learning_rate, mini_batch, iter):
+    train_error, test_error = [], []
+    batch_size = int(len(train_x) * mini_batch)
+    rng = np.random.default_rng()
 
-    # for _ in tqdm(range(iter)):
-    #     w = w - learning_rate * error_gradient(w, train_x, train_t)
-    #     train_error.append(error(w, train_x, train_t))
-    #     test_error.append(error(w, test_x, test_t))
+    for _ in tqdm(range(iter)):
+        sample = rng.choice(len(train_x), size=batch_size, replace=False)
+        w = w - learning_rate * error_gradient(w, train_x[sample], train_t[sample])
+        train_error.append(error(w, train_x, train_t))
+        test_error.append(error(w, test_x, test_t))
 
-    # return w, train_error, test_error
+    return w, train_error, test_error
 
 
 def plot_error(title, train_error, test_error):
@@ -229,12 +233,12 @@ def main():
     # plot_error("Gradient Descent", train_error, test_error)
 
     # Logistic regression with Momentum -------------------
-    # learning_rate = 0.9
-    # momentum = 0.5
-    # w, train_error, test_error = gradient_descent_momentum(
-    #     w, train_x, train_t, test_x, test_t, learning_rate, momentum, 10000)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Gradient Descent", train_error, test_error)
+    learning_rate = 0.9
+    momentum = 0.5
+    w, train_error, test_error = gradient_descent_momentum(
+        w, train_x, train_t, test_x, test_t, learning_rate, momentum, 10000)
+    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    plot_error("Momentum", train_error, test_error)
 
     # Logistic regression with weight decay ---------------
     # learning_rate = 0.9
@@ -242,7 +246,7 @@ def main():
     # w, train_error, test_error = weight_decay(
     #     w, train_x, train_t, test_x, test_t, learning_rate, lam, 5340)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Gradient Descent", train_error, test_error)
+    # plot_error("Weight decay", train_error, test_error)
 
     # Logistic regression with Newton method -------------- # TODO DOES NOT WORK
     # learning_rate = 0.9
@@ -250,26 +254,28 @@ def main():
     # w, train_error, test_error = newton_method(
     #     w, train_x, train_t, test_x, test_t, learning_rate, lam, 10)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Gradient Descent", train_error, test_error)
+    # plot_error("Netwon Method", train_error, test_error)
 
-    # Logistic regression with line search ---------------- # TODO andere line search voor deze en de volgende?
+    # Logistic regression with line search ---------------- # TODO Andere line search
     # w, train_error, test_error = line_search(
     #     w, train_x, train_t, test_x, test_t, 224)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Gradient Descent", train_error, test_error)
+    # plot_error("Line Search", train_error, test_error)
 
     # Logistic regression with conjugation ----------------
     # w, train_error, test_error = conjugate(
     #     w, train_x, train_t, test_x, test_t, 104)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Gradient Descent", train_error, test_error)
+    # plot_error("Conjugation", train_error, test_error)
 
     # Stochastic gradient descent -------------------------
-    # learning_rate = 0.9
-    # w, train_error, test_error = stochastic_gradient_descent(
-    #     w, train_x, train_t, test_x, test_t, learning_rate, 5000)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Gradient Descent", train_error, test_error)
+    # for lr in [0.1,0.6,0.9]:
+    #     learning_rate = lr
+    #     mini_batch = 0.01
+    #     w, train_error, test_error = stochastic_gradient_descent(
+    #         w, train_x, train_t, test_x, test_t, learning_rate, mini_batch, 5000)
+    #     print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    #     plot_error(f"Stochastic Gradient Descent lr={lr}", train_error, test_error)
 
 
 

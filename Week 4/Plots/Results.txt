@@ -1,0 +1,8 @@
+Model                           Plot_name       Train_error                 Test_error
+Momentum                        Momentum.png    0.016046560647875657        0.05499115435549369
+    learning_rate = 0.9
+    momentum = 0.5
+
+Momentum                        Momentum.png    0.016046560647875657        0.05499115435549369
+    learning_rate = 0.9
+    momentum = 0.5
