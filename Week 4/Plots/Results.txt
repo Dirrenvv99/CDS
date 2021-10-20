@@ -34,3 +34,8 @@ Stochastic Gradient Descent     SGD_2.png       0.025681374357061262        0.05
 Stochastic Gradient Descent     SGD_3.png       0.019441011405075193        0.05129216730640725
     learning_rate = 0.9
     mini_batch = 0.01
+
+
+DISCUSSION
+The results stated above are all computed on the MNIST dataset with ~12000 samples (for training) with ~800 features. These results will be different if the methods are used on other datasets, with different dimensions and harder or easier features.
+Other methods can also achieve different results, a deep neural network is able to generate a more complex model compared to the above methods.
