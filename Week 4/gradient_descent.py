@@ -90,21 +90,33 @@ def weight_decay(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter):
     return w, train_error, test_error
 
 
+def remove_empty_values(train_x, test_x, w):
+    """
+    The current dataset contains many datapoints that are always zero. By removing thses points, 
+    the weights for these points do not have to be calculated.
+    """
+    # change all values to a certain value.
+    # new_value = 1
+    # train_x[train_x==0] = new_value
+    # test_x[test_x==0] = new_value
+    return train_x, test_x, w
+
+    # select = [index for index, dim in enumerate(np.concatenate((train_x, test_x)).T) if not np.any((dim == 0))]
+    # print(len(select))
+
+    # return train_x[:, select], test_x[:, select], w[select]
+
+
+
 def newton_method(w, train_x, train_t, test_x, test_t, lam, iter):
     train_error, test_error = [], []
 
     for _ in tqdm(range(iter)): # TODO FIX
-        # print(w.shape)
-        # print(hessian(w, train_x, train_t, lam).shape)
-        # print(np.linalg.inv(hessian(w, train_x, train_t, lam)).shape)
-        # print(error_gradient(w, train_x, train_t, lam).shape)
-
-        # print(hessian(w, train_x, train_t, lam))
-
         w = w - np.dot(
             np.linalg.inv(hessian(w, train_x, train_t, lam)),
             error_gradient(w, train_x, train_t, lam))
 
+        print(error(w, train_x, train_t), error(w, test_x, test_t))
 
         train_error.append(error(w, train_x, train_t))
         test_error.append(error(w, test_x, test_t))
@@ -251,11 +263,13 @@ def main():
     # plot_error("Weight decay", train_error, test_error)
 
     # Logistic regression with Newton method -------------- # TODO DOES NOT WORK
-    # lam = 0.1
-    # w, train_error, test_error = newton_method(
-    #     w, train_x, train_t, test_x, test_t, lam, 10)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Netwon Method", train_error, test_error)
+    lam = 0.1
+    train_x, test_x, w = remove_empty_values(train_x, test_x, w) # Makes no difference
+    print(train_x)
+    w, train_error, test_error = newton_method(
+        w, train_x, train_t, test_x, test_t, lam, 10)
+    print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    plot_error("Netwon Method", train_error, test_error)
 
     # Logistic regression with line search ----------------
     # initial_gam = 2
