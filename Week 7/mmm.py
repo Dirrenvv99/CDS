@@ -24,9 +24,10 @@ class MMM:
     # https://web.stanford.edu/~lmackey/stats306b/doc/stats306b-spring14-lecture3_scribed.pdf
     def __init__(self, clusters):
         self.K = clusters
-    
+
     def multinomial(self, x, mu, k):
-        return np.prod(mu**x)
+        result = np.prod((mu**x)*((1-mu)**(1-x)))
+        return result
 
     def log_likelihood(self, X, mu, pi):
         logs = [np.log(np.sum([pi[k] * self.multinomial(x, mu[k], k) for k in range(self.K)])) for x in X]
@@ -35,6 +36,7 @@ class MMM:
     # EM-Algorithm
     def fit(self, X, max_iter=100, min_diff=0.01):
         # 1. Initialization
+        X = X[:20]
         print(f'Data: {X.shape}')
         N, d = X.shape
         random_row = np.random.randint(low=0, high=N, size=self.K)
