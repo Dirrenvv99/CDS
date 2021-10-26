@@ -2,6 +2,8 @@ import numpy as np
 from mlxtend.data import loadlocal_mnist
 from pathlib import Path
 
+from numpy.core.defchararray import add
+
 
 # EXERCISE 2.3 MIXTURE MODELS and EM
 
@@ -21,27 +23,50 @@ def load_data(images_path, labels_path):
 
 
 class MMM:
-    # https://web.stanford.edu/~lmackey/stats306b/doc/stats306b-spring14-lecture3_scribed.pdf
+    # Slides: 192-195
     def __init__(self, clusters):
         self.K = clusters
 
-    def multinomial(self, x, mu, k):
-        result = np.prod((mu**x)*((1-mu)**(1-x)))
-        return result
+    def posterior(self, x, mu, pi):
+        p_k = 1/self.K
+        p_x_k = np.zeros((self.K, self.d))
+        for k in range(self.K):
+            p_x_given_k = np.array([mu[k,j]**x[j]*(1-mu[k,j])**(1-x[j]) for j in range(self.d)])
+            p_x_k[k] = pi[k] * np.prod(p_x_given_k)
+
+        return p_k * np.sum(p_x_k)
+    
+    def ku_argmax(self, x, mu, pi):
+        p_k = 1/self.K
+        p_x_k = np.zeros((self.K, 1))
+        for k in range(self.K):
+            p_x_given_k = np.array([mu[k,j]**x[j]*(1-mu[k,j])**(1-x[j]) for j in range(self.d)])
+            p_x_k[k] = np.prod(p_x_given_k)
+
+        return np.argmax(p_k * p_x_k)
 
     def log_likelihood(self, X, mu, pi):
-        logs = [np.log(np.sum([pi[k] * self.multinomial(x, mu[k], k) for k in range(self.K)])) for x in X]
-        return np.sum(logs)
+        # xu is data point
+        logs_pi = []
+        logs_data = []
+        for x in X:
+            ku = self.ku_argmax(x, mu, pi)
+            logs_pi.append(pi[ku])
+            for j in range(self.d):
+                logs_data.append(x[j]*np.log(mu[ku,j])+(1-x[j])*np.log(1-mu[ku,j]))
 
-    # EM-Algorithm
+        return np.sum(logs_pi) + np.sum(logs_data)
+
     def fit(self, X, max_iter=100, min_diff=0.01):
         # 1. Initialization
-        X = X[:20]
-        print(f'Data: {X.shape}')
-        N, d = X.shape
-        random_row = np.random.randint(low=0, high=N, size=self.K)
+        X = X[:100]
+        self.N, self.d = X.shape
+        # MNIST data N = 60000, K = 10, d = 784.
+        print(f'X: {X.shape}, N: {self.N}, K: {self.K}, d: {self.d}')
+
+        # Random initialization
+        random_row = np.random.randint(low=0, high=self.N, size=self.K)
         mu = np.array([X[row_index,:] for row_index in random_row])
-        # sigma = np.array([np.cov(X.T) for _ in range(self.K)])
         pi = np.full(self.K, 1/self.K)
 
         print(f'Means: {mu.shape}, Coefficients: {pi.shape}')
@@ -49,22 +74,18 @@ class MMM:
         llh = [self.log_likelihood(X, mu, pi)]
         print(f'[{len(llh) -1}]: log likelihood = {llh[-1]}')
 
-        gamma = np.zeros((N, self.K))
-
+        k_u = np.empty((self.N))
         for iter in range(max_iter):
-            # 2. E-step
-            print(f'E step {iter+1}')
-            for k in range(self.K):
-                for n in range(len(X)):
-                    d = np.sum([pi[j] * self.multinomial(X[n], mu[j], j) for j in range(self.K)])
-                    gamma[n, k] = pi[k] * self.multinomial(X[n], mu[k], self.K) / d
 
-            # 3. M-step
-            print(f'M step {iter+1}')
+            for n in range(self.N):
+                k_u[n] = self.ku_argmax(X[n], mu, pi)
+
             for k in range(self.K):
-                N_k = sum(gamma[:,k])
-                mu[k] = 1 / N_k * np.sum([gamma[n,k] * X[n] for n in range(N)], axis=0)
-                pi[k] = N_k / N
+                X_k = np.array([idx for idx, x in enumerate(k_u) if x == k])
+                N_k = X_k.shape[0]
+                pi[k] = N_k / self.N
+                for j in range(self.d):
+                    mu[k,j] = 1/N_k * np.sum([X[u,j] for u in X_k])
 
             # 4. Evaluate log likelihood
             llh.append(self.log_likelihood(X, mu, pi))
@@ -76,7 +97,7 @@ class MMM:
                 print(f'[{len(llh) -1}]: Changes are too small to continue')
                 break
 
-        return mu, gamma, llh
+        return mu, llh
 
 
 def main():
@@ -90,7 +111,7 @@ def main():
 
     mmm = MMM(10)
     X = np.array(train_x)
-    mu, gamma, llh = mmm.fit(X, 100, 0.001)
+    mu, llh = mmm.fit(X, 100, 0.001)
 
 
 if __name__=="__main__":

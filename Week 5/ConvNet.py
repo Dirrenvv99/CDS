@@ -44,57 +44,6 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.legend(loc='lower right')
 
-
-# -------------------------------
-# 3.
-'''
-activations = ['relu', 'tanh']
-optimizers = ['adam', 'adagrad', 'sgd']
-
-
-Params = 122,570
-Difference with ReLU and tanh:
-ReLU: Test: loss=0.8949, accuracy=0.7075
-tanh: Test: loss=0.9759, accuracy=0.6762
-Plot for tanh can be found in ex_3_tanh.png
-The reason why using tanh performs worse is because [UITLEG]
-
-Optimizers:
-- Adam: loss=0.8949, accuracy=0.7075
-- Adagrad: loss=1.4249, accuracy=0.4919
-- SGD: loss=1.1328, accuracy=0.6089
-Plots can be found in:
-- ex_3_adagrad.png
-- ex_3_sgd.png
-'''
-
-# -------------------------------
-# 4.
-'''
-Parameters both networks:
-- epochs = 10
-- learning rate = 1e-3
-- loss = sparse_categorical_crossentropy
-- optimizer = Adam
-
-Number of parameters:
-CNN: 122,570
-MLP: 123,950
-
-MLP results for 10 epochs with a learning rate of 1e-3:
-loss=1.7072, accuracy=0.3809
-plot: ex_4_MLP_10epochs.png
-CNN was:
-loss=0.8949, accuracy=0.7075
-
-MLP for 100 epochs with a learning rate of 1e-4:
-loss=1.4717, accuracy=0.4787
-A plot can be found in the plots folder: ex_4_MLP_100epochs.png
-Results can be found in ex_4_log.log in logs folder.
-The model was largely overfitting.
-
-The CNN clearly outperforms the MLP. This is because the MLP includes too many 
-parameters leading to redudancy and overfitting. CNN is better for image classification 
-due to less parameters, whereas the MLP is fully connected making the network unseemingly large.
-'''
-
+# ----------------------------
+# NOTE!
+# ANSWERS in answers.pdf
