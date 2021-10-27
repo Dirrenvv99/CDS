@@ -93,15 +93,18 @@ class MMM:
             diff = np.abs(llh[-2] - llh[-1])
             print(f'[{len(llh) -1}]: log likelihood = {llh[-1]}')
             print(f'[{len(llh) -1}]: difference = {diff}')
-            # This is to stop the algorithm from continueing for too long
+            # This is to stop the algorithm from continuing for too long
             if diff < min_diff:
                 print(f'[{len(llh) -1}]: Changes are too small to continue')
                 break
 
+            if iter + 1 in [10,20]:
+                plot(mu, pi, self.K)
+
         return mu, pi, llh
 
 
-def main(clusters = 10, iterations=100, diff_likelihood=0.001):
+def main(clusters = 10, iterations=50, diff_likelihood=0.0001):
     train_x, train_t = load_data(
     'data/train-images-idx3-ubyte', 'data/train-labels-idx1-ubyte'
     )
@@ -123,7 +126,7 @@ def plot(mu, pi, clusters):
     for k in range(clusters):
         ax = axes[k//num_col, k%num_col]
         ax.imshow(mu[k,:].reshape(28,28), cmap='gray')
-        ax.set_title(f'{pi[k]}')
+        ax.set_title(f'{round(pi[k], 3)}')
 
     plt.tight_layout()
     plt.show()

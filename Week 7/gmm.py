@@ -70,7 +70,7 @@ class GMM:
             diff = np.abs(llh[-2] - llh[-1])
             print(f'[{len(llh) -1}]: log likelihood = {llh[-1]}')
             print(f'[{len(llh) -1}]: difference = {diff}')
-            # This is to stop the algorithm from continueing for too long
+            # This is to stop the algorithm from continuing for too long
             if diff < min_diff:
                 print(f'[{len(llh) -1}]: Changes are too small to continue')
                 break
