@@ -13,7 +13,9 @@ Weight Decay                    WD.png          0.022961710269442413        0.04
     learning_rate = 0.9
     lambda = 0.1
 
-NEWTON
+Newtons methods                 Newton.png      10.901008237267297          10.898162786376687
+    gradient_factor = 0.0001
+    lambda = 0.1
 
 Line Search                     LS.png          0.03219390555751208         0.04843938123208045
     initial gamma = 2
