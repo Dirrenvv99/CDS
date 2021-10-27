@@ -112,14 +112,24 @@ def remove_empty_values(train_x, test_x, w):
 
 
 
-def newton_method(w, train_x, train_t, test_x, test_t, lam, iter):
+def newton_method(w, train_x, train_t, test_x, test_t, lam, iter, small_step = False):
+    ''' 
+    Implementation of Newtons method;
+    due to nan/overflow errors the option to run the algorithm with a significantly smaller step size is added.
+    For more explanation regarding the need for this, see the comments at the end of the file.
+    '''
     train_error, test_error = [], []
 
+    step_size = 1.0 
+    if small_step:
+        step_size = 0.0001
+
     for _ in tqdm(range(iter)):
-        # .0001 Was used to get a working model. Otherwise all errors became nan.
+        # .0001 Was used to get a working model. Otherwise all errors became nan. 
+        # For an explanation regarding this phenemona please see the comments at the end of this file
         w = w - np.dot(
             np.linalg.inv(hessian(w, train_x, train_t, lam)),
-            .0001*error_gradient(w, train_x, train_t, lam))
+            step_size*error_gradient(w, train_x, train_t, lam))
 
         train_error.append(error(w, train_x, train_t, lam))
         test_error.append(error(w, test_x, test_t, lam))
@@ -275,7 +285,7 @@ def main():
     # lam = 0.1
     # train_x, test_x, w = remove_empty_values(train_x, test_x, w) # Makes little difference
     # w, train_error, test_error = newton_method(
-    #     w, train_x, train_t, test_x, test_t, lam, 10)
+    #     w, train_x, train_t, test_x, test_t, lam, 10) # adding a True parameter runs the same algorithm with a smaller step size.
     # print(f"FINAL ERROR: {error(w, train_x, train_t, lam, label='train')} and {error(w, test_x, test_t, lam, label='test')}")
     # plot_error("Newton Method", train_error, test_error)
 
@@ -306,3 +316,17 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+'''
+Explanation regarding "weird" overflow/nan errors concerning the implementation of Newtons method:
+What seems to be happening when the implementation is run "normally" is that after one iteration it gets a quite good training and test accuracy; being only 3% off.
+After this first iteration it seems to behave in a way that would be normal for a diverging algorithm. 
+For us this can be explained by the fact that the problem in some way is quite close to a quadratic problem.
+Because if it were to be a quadratic problem newtons method would be an exact solution within one iteration, which seems to almost be the case.
+After this first iteration the steps that the algorithm takes are far too big.
+Which results in the same behaviour as a gradient descent algortihm with a too big learning rate: diverging.
+To showcase this, the algorithm can also be ran with a factor that makes the stepping sizes of the newton method much smaller.
+At this point the algorithm does not diverge anymore, showing that the algorithm just might take too big steps for this data!
+
+'''
