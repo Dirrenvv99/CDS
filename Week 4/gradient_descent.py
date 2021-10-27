@@ -28,10 +28,14 @@ def sigma(x):
     return 1./(1.+np.exp(-x))
 
 
-def error(w, x, t, lam=0):
+def error(w, x, t, lam=0, label=None):
     n = len(x)
 
     y = sigma(np.dot(w, x.T))
+    
+    if label:
+        print("Accuracy", label, np.sum(((y>=.5)==t))/n)
+
     E = -(np.dot(t, np.log(y)) + np.dot((1-t), np.log(1-y)))/n + lam/2 * (w**2).sum()
 
     return E
@@ -90,25 +94,35 @@ def weight_decay(w, train_x, train_t, test_x, test_t, learning_rate, lam, iter):
     return w, train_error, test_error
 
 
+def remove_empty_values(train_x, test_x, w):
+    """
+    The current dataset contains many datapoints that are always zero. By removing these points, 
+    the weights for these points do not have to be calculated.
+    """
+    # change all values to a specific value. This is not used currently
+    # new_value = 1
+    # train_x[train_x==0] = new_value
+    # test_x[test_x==0] = new_value
+    # return train_x, test_x, w
+
+    select = [index for index, dim in enumerate(np.concatenate((train_x, test_x)).T) if not np.all((dim == 0))]
+    print("removed:", train_x.shape[1]-len(select), "dimensions")
+
+    return train_x[:, select], test_x[:, select], w[select]
+
+
+
 def newton_method(w, train_x, train_t, test_x, test_t, lam, iter):
     train_error, test_error = [], []
 
-    for _ in tqdm(range(iter)): # TODO FIX
-        # print(w.shape)
-        # print(hessian(w, train_x, train_t, lam).shape)
-        # print(np.linalg.inv(hessian(w, train_x, train_t, lam)).shape)
-        # print(error_gradient(w, train_x, train_t, lam).shape)
-
-        # print(hessian(w, train_x, train_t, lam))
-
+    for _ in tqdm(range(iter)):
+        # .0001 Was used to get a working model. Otherwise all errors became nan.
         w = w - np.dot(
             np.linalg.inv(hessian(w, train_x, train_t, lam)),
-            error_gradient(w, train_x, train_t, lam))
+            .0001*error_gradient(w, train_x, train_t, lam))
 
-
-        train_error.append(error(w, train_x, train_t))
-        test_error.append(error(w, test_x, test_t))
-        # print(train_error, test_error)
+        train_error.append(error(w, train_x, train_t, lam))
+        test_error.append(error(w, test_x, test_t, lam))
 
     return w, train_error, test_error
 
@@ -223,15 +237,21 @@ def main():
 
     print('shape train_x: %s x %s' % (train_x.shape[0], train_x.shape[1]))
     print('shape train_t: %s' % (train_t.shape))
+    print('shape test_x: %s x %s' % (test_x.shape[0], test_x.shape[1]))
+    print('shape test_t: %s' % (test_t.shape))
 
     # Initialize weights between [-1, 1]
+    # Different weight initialization methods produce different (better) results,
+    # however this is not within the scope of this work
     w = np.random.choice(20000, train_x.shape[1])/10000 - 1
+
+    # MODELS (UNCOMMENT WHICH ONE YOU WANT TO RUN) --------
 
     # Gradient descent ------------------------------------
     # learning_rate = 0.9
     # w, train_error, test_error = gradient_descent(
     #     w, train_x, train_t, test_x, test_t, learning_rate, 10000)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # print(f"FINAL ERROR: {error(w, train_x, train_t, label='train')} and {error(w, test_x, test_t, label='test')}")
     # plot_error("Gradient Descent", train_error, test_error)
 
     # Logistic regression with Momentum -------------------
@@ -240,6 +260,7 @@ def main():
     # w, train_error, test_error = gradient_descent_momentum(
     #     w, train_x, train_t, test_x, test_t, learning_rate, momentum, 10000)
     # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # print(f"FINAL ERROR: {error(w, train_x, train_t, label='train')} and {error(w, test_x, test_t, label='test')}")
     # plot_error("Momentum", train_error, test_error)
 
     # Logistic regression with weight decay ---------------
@@ -247,21 +268,22 @@ def main():
     # lam = 0.1
     # w, train_error, test_error = weight_decay(
     #     w, train_x, train_t, test_x, test_t, learning_rate, lam, 5340)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # print(f"FINAL ERROR: {error(w, train_x, train_t, lam, label='train')} and {error(w, test_x, test_t, lam, label='test')}")
     # plot_error("Weight decay", train_error, test_error)
 
-    # Logistic regression with Newton method -------------- # TODO DOES NOT WORK
+    # Logistic regression with Newton method --------------
     # lam = 0.1
+    # train_x, test_x, w = remove_empty_values(train_x, test_x, w) # Makes little difference
     # w, train_error, test_error = newton_method(
     #     w, train_x, train_t, test_x, test_t, lam, 10)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
-    # plot_error("Netwon Method", train_error, test_error)
+    # print(f"FINAL ERROR: {error(w, train_x, train_t, lam, label='train')} and {error(w, test_x, test_t, lam, label='test')}")
+    # plot_error("Newton Method", train_error, test_error)
 
     # Logistic regression with line search ----------------
     # initial_gam = 2
     # w, train_error, test_error = line_search(
     #     w, train_x, train_t, test_x, test_t, initial_gam, 224)
-    # print(f"FINAL ERROR: {error(w, train_x, train_t)} and {error(w, test_x, test_t)}")
+    # print(f"FINAL ERROR: {error(w, train_x, train_t, label='train')} and {error(w, test_x, test_t, label='test')}")
     # plot_error("Line Search", train_error, test_error)
 
     # Logistic regression with conjugation ----------------
