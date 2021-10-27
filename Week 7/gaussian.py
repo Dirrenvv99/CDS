@@ -25,14 +25,12 @@ class GMM:
     # EM-Algorithm
     def fit(self, X, max_iter=100, min_diff=0.01):
         # 1. Initialization
-        # https://link.springer.com/article/10.3758/s13428-015-0697-6
         print(f'Data: {X.shape}')
         N, d = X.shape
         random_row = np.random.randint(low=0, high=N, size=self.K)
         mu = np.array([X[row_index,:] for row_index in random_row])
         sigma = np.array([np.cov(X.T) for _ in range(self.K)])
         pi = np.full(self.K, 1/self.K)
-        
 
         print(f'Means: {mu.shape}, Covariances: {sigma.shape}, Coefficients: {pi.shape}')
 
