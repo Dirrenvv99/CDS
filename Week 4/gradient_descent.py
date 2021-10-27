@@ -241,6 +241,8 @@ def main():
     print('shape test_t: %s' % (test_t.shape))
 
     # Initialize weights between [-1, 1]
+    # Different weight initialization methods produce different (better) results,
+    # however this is not within the scope of this work
     w = np.random.choice(20000, train_x.shape[1])/10000 - 1
 
     # MODELS (UNCOMMENT WHICH ONE YOU WANT TO RUN) --------
